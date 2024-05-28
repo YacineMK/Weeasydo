@@ -92,4 +92,6 @@ export const authController = async (req: Request, res: Response) => {
     }
 }
 
+// export const mecontroller = (req : Request , res : Response) => {
 
+// }
