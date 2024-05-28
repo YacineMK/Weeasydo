@@ -19,8 +19,14 @@ const userSchema = new mongoose.Schema({
     },
     useremail: {
         type: String,
-        required: [true, "Please enter your user email"]
+        required: [true, "Please enter your user email"],
+        unique: true
     },
+    userpassword: {
+        type: String,
+        required: [true, "Please enter your password"],
+        unique: true
+    }
 })
 
 export const usermodel = mongoose.model("users", userSchema);

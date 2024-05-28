@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { productmodel } from '../models/product.model';
-
+import { ResponseI } from '../types/Response';
 
 export const getProduct = async (req: Request, res: Response) => {
     try {
@@ -26,7 +26,7 @@ export const getProductbyid = async (req: Request, res: Response) => {
 export const postProduct = async (req: Request, res: Response) => {
     const { productname, productprice, productdescription } = req.body;
 
-    if (productname !== undefined && productprice !== undefined && productdescription !== undefined) {
+    if (productname && productprice && productdescription) {
         try {
             const newProduct = new productmodel({
                 productname,
@@ -34,10 +34,19 @@ export const postProduct = async (req: Request, res: Response) => {
                 productdescription
             });
             const savedProduct = await newProduct.save();
-            res.status(201).json(savedProduct);
+            const response: ResponseI = {
+                status: 'success',
+                message: 'User registered successfully',
+                data: savedProduct
+            };
+            res.status(201).json(response);
         } catch (err) {
             console.error(err);
-            res.status(500).send('Server Error');
+            const response: ResponseI = {
+                status: 'success',
+                message: 'Server Error',
+            };
+            res.status(500).json(response);
         }
     } else {
         res.status(400).send('Missing required fields');
@@ -49,7 +58,7 @@ export const deleteProductbyid = async (req: Request, res: Response) => {
         const productId = req.params.id
         const Products = await productmodel.findByIdAndDelete(productId)
         res.json({
-            "message": "Product deleted" ,
+            "message": "Product deleted",
         })
     } catch (err) {
         console.log(err)
