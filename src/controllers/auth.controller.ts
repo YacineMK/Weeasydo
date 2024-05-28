@@ -2,6 +2,10 @@ import { Request, Response } from 'express';
 import { usermodel } from '../models/user.model';
 import { ResponseI } from '../types/Response';
 import bcrypt from 'bcrypt'
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
+
+dotenv.config()
 
 
 export const registerController = async (req: Request, res: Response) => {
@@ -9,16 +13,14 @@ export const registerController = async (req: Request, res: Response) => {
 
     if (username && useremail && userphone && userpassword) {
         const existingUser = await usermodel.findOne({ userphone, useremail });
-        const hashpass = bcrypt.hash(userpassword, 10, (err) => {
-            console.log(err)
-        });
+        const hashpass = await bcrypt.hash(userpassword, 10);
         if (!existingUser) {
             try {
                 const newUser = new usermodel({
                     username,
                     useremail,
                     userphone,
-                    hashpass
+                    userpassword: hashpass
                 });
                 const savedUser = await newUser.save();
                 const response: ResponseI = {
@@ -55,6 +57,39 @@ export const authController = async (req: Request, res: Response) => {
     const { useremail, userphone, userpassword } = req.body;
 
     if ((useremail || userphone) && userpassword) {
+        try {
+            const user = await usermodel.findOne({ useremail })
 
+            if (!user) {
+                const response: ResponseI = {
+                    status: 'error',
+                    message: 'User not found'
+                };
+                return res.status(404).json(response);
+            }
+
+            const password: string = user?.userpassword as string;
+            const passwordvalid = await bcrypt.compare(userpassword, password)
+
+            if (passwordvalid) {
+                const token = jwt.sign({
+                    username: user.username,
+                    userpassword: user.userpassword
+                }, process.env.SECRET_KEY as string);
+
+                const response: ResponseI = {
+                    status: 'success',
+                    message: 'token Generated',
+                    data: token
+                };
+                res.status(200).json(response);
+            }
+
+        } catch (err) {
+            console.log(err)
+
+        }
     }
 }
+
+

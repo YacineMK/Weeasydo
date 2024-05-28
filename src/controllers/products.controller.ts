@@ -8,7 +8,11 @@ export const getProduct = async (req: Request, res: Response) => {
         res.json(Products)
     } catch (err) {
         console.log(err)
-        res.status(500).send("Server Error");
+        const response: ResponseI = {
+            status: 'success',
+            message: "Server Error",
+        };
+        res.status(500).json(response);
     }
 }
 
@@ -19,7 +23,11 @@ export const getProductbyid = async (req: Request, res: Response) => {
         res.json(Products)
     } catch (err) {
         console.log(err)
-        res.status(500).send("Server Error");
+        const response: ResponseI = {
+            status: 'success',
+            message: "Server Error",
+        };
+        res.status(500).json(response);
     }
 }
 
@@ -57,11 +65,17 @@ export const deleteProductbyid = async (req: Request, res: Response) => {
     try {
         const productId = req.params.id
         const Products = await productmodel.findByIdAndDelete(productId)
-        res.json({
-            "message": "Product deleted",
-        })
+        const response: ResponseI = {
+            status: 'success',
+            message: "Product deleted",
+        };
+        res.json(response)
     } catch (err) {
         console.log(err)
-        res.status(500).send("Server Error");
+        const response: ResponseI = {
+            status: 'success',
+            message: "Server Error",
+        };
+        res.status(500).json(response);
     }
 }
