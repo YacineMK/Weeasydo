@@ -5,11 +5,16 @@ import { ResponseI } from '../types/Response';
 export const getProduct = async (req: Request, res: Response) => {
     try {
         const Products = await productmodel.find()
-        res.json(Products)
+        const response: ResponseI = {
+            status: 'success',
+            message: "list of all Products",
+            data: Products
+        };
+        res.json(response)
     } catch (err) {
         console.log(err)
         const response: ResponseI = {
-            status: 'success',
+            status: 'error',
             message: "Server Error",
         };
         res.status(500).json(response);
@@ -19,8 +24,13 @@ export const getProduct = async (req: Request, res: Response) => {
 export const getProductbyid = async (req: Request, res: Response) => {
     try {
         const productId = req.params.id
-        const Products = await productmodel.findById(productId)
-        res.json(Products)
+        const Product = await productmodel.findById(productId)
+        const response: ResponseI = {
+            status: 'success',
+            message: "product with id" + productId,
+            data: Product
+        };
+        res.json(response)
     } catch (err) {
         console.log(err)
         const response: ResponseI = {
@@ -44,7 +54,7 @@ export const postProduct = async (req: Request, res: Response) => {
             const savedProduct = await newProduct.save();
             const response: ResponseI = {
                 status: 'success',
-                message: 'User registered successfully',
+                message: 'product created successfully',
                 data: savedProduct
             };
             res.status(201).json(response);
