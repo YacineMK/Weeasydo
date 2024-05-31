@@ -4,6 +4,7 @@ import { ResponseI } from '../types/Response';
 import bcrypt from 'bcrypt'
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
+import { jwtDecode } from "jwt-decode";
 
 dotenv.config()
 
@@ -53,12 +54,13 @@ export const registerController = async (req: Request, res: Response) => {
     }
 };
 
+
 export const authController = async (req: Request, res: Response) => {
     const { useremail, userphone, userpassword } = req.body;
 
     if ((useremail || userphone) && userpassword) {
         try {
-            const user = await usermodel.findOne({ useremail })
+            const user = await usermodel.findOne({ $or: [{ useremail }, { userphone }] })
 
             if (!user) {
                 const response: ResponseI = {
@@ -72,17 +74,16 @@ export const authController = async (req: Request, res: Response) => {
             const passwordvalid = await bcrypt.compare(userpassword, password)
 
             if (passwordvalid) {
-                const token = jwt.sign({
-                    username: user.username,
-                    userpassword: user.userpassword
-                }, process.env.SECRET_KEY as string);
+
+                const token = jwt.sign({ userId: user._id as string }, process.env.SECRET_KEY as string);
+
 
                 const response: ResponseI = {
                     status: 'success',
                     message: 'token Generated',
                     data: token
                 };
-                res.status(200).json(response);
+                res.status(200).json(response)
             }
 
         } catch (err) {
@@ -92,6 +93,36 @@ export const authController = async (req: Request, res: Response) => {
     }
 }
 
-// export const mecontroller = (req : Request , res : Response) => {
+export const mecontroller = async (req: Request, res: Response) => {
+    const token = req.headers.authorization;
 
-// }
+    try {
+        if (!token) {
+            throw new Error("Authorization token not provided");
+        }
+
+        const decodedToken: any = jwtDecode(token as string);
+        const userId: string = decodedToken.userId;
+
+        const user = await usermodel.findById(userId);
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        const response: ResponseI = {
+            status: 'success',
+            message: 'Token Decoded',
+            data: user
+        };
+
+        return res.status(200).json(response);
+    } catch (err) {
+        console.error(err);
+        const response: ResponseI = {
+            status: 'error',
+            message: 'Invalid Token'
+        };
+        return res.status(401).json(response);
+    }
+};

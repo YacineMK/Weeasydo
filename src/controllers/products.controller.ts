@@ -1,10 +1,14 @@
 import { Request, Response } from 'express';
 import { productmodel } from '../models/product.model';
 import { ResponseI } from '../types/Response';
+import NodeCache from 'node-cache';
+
+const cache = new NodeCache()
 
 export const getProduct = async (req: Request, res: Response) => {
     try {
         const Products = await productmodel.find()
+
         const response: ResponseI = {
             status: 'success',
             message: "list of all Products",
@@ -51,7 +55,10 @@ export const postProduct = async (req: Request, res: Response) => {
                 productprice,
                 productdescription
             });
+
             const savedProduct = await newProduct.save();
+
+
             const response: ResponseI = {
                 status: 'success',
                 message: 'product created successfully',

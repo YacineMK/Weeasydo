@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
     },
     username: {
         type: String,
+        unique: true,
         required: [true, "Please enter your user name"]
     },
     userphone: {
@@ -21,6 +22,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please enter your user email"],
         unique: true
+    },
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
     },
     userpassword: {
         type: String,
