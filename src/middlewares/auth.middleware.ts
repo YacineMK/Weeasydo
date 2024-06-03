@@ -10,7 +10,8 @@ interface CustomRequest extends Request {
 }
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
+    const header = `${req.headers.authorization}`
+    const token = header.split(" ")[1];
 
     if (!token) {
         const response: ResponseI = {

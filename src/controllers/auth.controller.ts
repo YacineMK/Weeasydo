@@ -75,13 +75,12 @@ export const authController = async (req: Request, res: Response) => {
 
             if (passwordvalid) {
 
-                const token = jwt.sign({ userId: user._id as string }, process.env.SECRET_KEY as string);
-
+                const token = jwt.sign({ userId: user._id as string }, process.env.SECRET_KEY as string, { expiresIn: process.env.JWT_EXPIRES_IN });
 
                 const response: ResponseI = {
                     status: 'success',
                     message: 'token Generated',
-                    data: token
+                    data: `Bearer ${token}`,
                 };
                 res.status(200).json(response)
             }
